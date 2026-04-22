@@ -65,7 +65,7 @@ export default function AppHeader() {
         size={32}
         style={{ background: 'linear-gradient(135deg, #4a90d9, #2ebfa5)' }}
       >
-        MK
+        UI
       </Avatar>
     </Paper>
   );
