@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { MantineProvider, AppShell } from '@mantine/core';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { theme } from './theme';

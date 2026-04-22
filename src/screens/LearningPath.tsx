@@ -1,4 +1,4 @@
-import React from 'react';
+ 
 import { Box, Group, Text, Paper, Button, Switch, Stack, Badge } from '@mantine/core';
 import { IconPlus, IconSun } from '@tabler/icons-react';
 import { paths } from '../data/demo';

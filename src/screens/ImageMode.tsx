@@ -1,4 +1,4 @@
-import React from 'react';
+ 
 import { Box, Group, Text, Paper, SimpleGrid, Image, Badge, SegmentedControl, ActionIcon } from '@mantine/core';
 import { IconGridDots, IconList, IconSearch } from '@tabler/icons-react';
 import { dummyImageSvg } from '../data/demo';

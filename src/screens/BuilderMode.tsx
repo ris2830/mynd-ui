@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Box, Paper, Text, Group, TextInput, Button, Stack, Badge, Select } from '@mantine/core';
 import { IconSearch, IconPlus } from '@tabler/icons-react';
 

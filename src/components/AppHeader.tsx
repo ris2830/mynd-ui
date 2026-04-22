@@ -1,4 +1,4 @@
-import React from 'react';
+ 
 import { Paper, Box, SegmentedControl, TextInput, ActionIcon, Avatar } from '@mantine/core';
 import { IconSearch, IconBell, IconCalendar } from '@tabler/icons-react';
 

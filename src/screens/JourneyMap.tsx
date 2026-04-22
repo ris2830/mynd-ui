@@ -1,4 +1,4 @@
-import React from 'react';
+ 
 import { Box, Paper, Group, Text, SimpleGrid, Badge, Button, Switch, ActionIcon, Stack } from '@mantine/core';
 import { IconTarget, IconWand, IconZoomIn } from '@tabler/icons-react';
 import { mapEdges, mapNodes } from '../data/demo';

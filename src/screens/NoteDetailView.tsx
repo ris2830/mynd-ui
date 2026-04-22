@@ -1,4 +1,4 @@
-import React from 'react';
+ 
 import { Box, Group, Text, Paper, Badge, ActionIcon, Tabs, Button, Image, Stack } from '@mantine/core';
 import { IconPencil, IconShare, IconChevronRight, IconPlayerPlay } from '@tabler/icons-react';
 import { dummyImageSvg } from '../data/demo';
