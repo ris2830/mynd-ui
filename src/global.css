@@ -1,0 +1,23 @@
+/* Sidebar expand on hover (ohne State) */
+.myndSidebar {
+  width: 72px;
+  transition: width 280ms cubic-bezier(.4,0,.2,1);
+  overflow: hidden;
+}
+
+.myndSidebar:hover {
+  width: 240px;
+}
+
+.myndSidebarLabel,
+.myndSidebarLogoText {
+  opacity: 0;
+  transition: opacity 200ms 80ms;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.myndSidebar:hover .myndSidebarLabel,
+.myndSidebar:hover .myndSidebarLogoText {
+  opacity: 1;
+}
