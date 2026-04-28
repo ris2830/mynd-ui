@@ -31,7 +31,7 @@ export default function App() {
           >
             <AppShell.Main>
               <Routes>
-                <Route path="/" element={<Navigate to="/learning" replace />} />
+                <Route path="/" element={<Navigate to="/journey" replace />} />
                 <Route path="/journey" element={<JourneyMap />} />
                 <Route path="/note" element={<NoteDetailView />} />
                 <Route path="/learning" element={<LearningPath />} />
