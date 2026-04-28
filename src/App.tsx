@@ -11,6 +11,7 @@ import JourneyMap from './screens/JourneyMap';
 import NoteDetailView from './screens/NoteDetailView';
 import LearningPath from './screens/LearningPath';
 import BuilderMode from './screens/BuilderMode';
+import Settings from './screens/Settings';
 
 import { FocusModeProvider } from './context/focusMode';
 
@@ -35,7 +36,7 @@ export default function App() {
                 <Route path="/note" element={<NoteDetailView />} />
                 <Route path="/learning" element={<LearningPath />} />
                 <Route path="/builder" element={<BuilderMode />} />
-                <Route path="/settings" element={<LearningPath />} />
+                <Route path="/settings" element={<Settings />} />
               </Routes>
             </AppShell.Main>
           </AppShell>

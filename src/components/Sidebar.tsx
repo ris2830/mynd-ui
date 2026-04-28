@@ -109,11 +109,12 @@ export default function Sidebar() {
               }}
             />
 
-            <Group justify="center" mt={10}>
+            <Group gap={10} mt={10} px={6} h={44} wrap="nowrap" align="center" justify="flex-start">
               <Avatar
                 radius="xl"
                 size={36}
                 style={{
+                  flex: '0 0 auto',
                   cursor: 'pointer',
                   background: 'linear-gradient(135deg, #4a90d9, #2ebfa5)',
                 }}

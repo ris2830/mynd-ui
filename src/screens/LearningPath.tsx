@@ -1,6 +1,7 @@
  
-import { Box, Group, Text, Paper, Button, Switch, Stack, Badge } from '@mantine/core';
-import { IconPlus, IconSun } from '@tabler/icons-react';
+import { useState } from 'react';
+import { ActionIcon, Box, Group, Text, Paper, Button, Switch, Stack, Badge } from '@mantine/core';
+import { IconChevronDown, IconChevronRight, IconPlus, IconSun } from '@tabler/icons-react';
 import { paths } from '../data/demo';
 import { useFocusMode } from '../context/focusMode';
 
@@ -17,6 +18,16 @@ const typeIcon = (t: string) => {
 
 export default function LearningPath() {
   const { focusOn, setFocusOn } = useFocusMode();
+  const [openPaths, setOpenPaths] = useState<Set<string>>(() => new Set(paths.map((path) => path.id)));
+
+  const togglePath = (id: string) => {
+    setOpenPaths((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const statusBadge = (s: string) => {
     if (s === 'done') return <Badge color="green" variant="light">Erledigt</Badge>;
@@ -59,9 +70,22 @@ export default function LearningPath() {
       </Group>
 
       <Stack gap={16}>
-        {paths.map((p) => (
+        {paths.map((p) => {
+          const isOpen = openPaths.has(p.id);
+
+          return (
           <Paper key={p.id} withBorder radius="md" style={{ overflow: 'hidden', boxShadow: '0 2px 16px rgba(60,90,140,0.08)' }}>
             <Group p={16} style={{ borderBottom: '1px solid var(--mantine-color-grayx-2)' }} gap={14} wrap="nowrap">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                radius="md"
+                onClick={() => togglePath(p.id)}
+                aria-label={isOpen ? 'Lernpfad einklappen' : 'Lernpfad ausklappen'}
+              >
+                {isOpen ? <IconChevronDown size={18} /> : <IconChevronRight size={18} />}
+              </ActionIcon>
+
               <Box style={{ width: 40, height: 40, borderRadius: 10, display: 'grid', placeItems: 'center', background: 'rgba(74,144,217,0.12)', fontSize: 18 }}>
                 {p.icon}
               </Box>
@@ -79,6 +103,7 @@ export default function LearningPath() {
               </Box>
             </Group>
 
+            {isOpen && (
             <Box p={16}>
               <Stack gap={10}>
                 {p.sources.map((s) => {
@@ -164,8 +189,10 @@ export default function LearningPath() {
                 })}
               </Stack>
             </Box>
+            )}
           </Paper>
-        ))}
+        );
+        })}
       </Stack>
 
       <Box h={80} hiddenFrom="sm" />
