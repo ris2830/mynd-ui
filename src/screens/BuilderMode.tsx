@@ -1,9 +1,64 @@
-
 import { Box, Paper, Text, Group, TextInput, Button, Stack, Badge, Select } from '@mantine/core';
-import { IconSearch, IconPlus } from '@tabler/icons-react';
+import {
+  IconChecklist,
+  IconFileText,
+  IconLink,
+  IconPlus,
+  IconSearch,
+  IconVideo,
+} from '@tabler/icons-react';
 
-// Referenz: Builder Mode (links Liste, Mitte Canvas, rechts Panel) – rein visuell
+const builderNodes = [
+  { id: 'html', label: 'HTML Basics', x: 80, y: 80, w: 150, status: 'done', tags: ['HTML', 'Beginner'] },
+  { id: 'css', label: 'CSS Fundamentals', x: 285, y: 145, w: 190, status: 'active', tags: ['CSS', '100XP'] },
+  { id: 'content', label: 'Add Content', x: 535, y: 145, w: 145, status: 'placeholder', tags: ['URL', 'PDF'] },
+  { id: 'responsive', label: 'Responsive Design', x: 285, y: 255, w: 190, status: 'todo', tags: ['CSS', 'Intermediate'] },
+  { id: 'advanced', label: 'Advanced CSS', x: 535, y: 270, w: 150, status: 'todo', tags: ['Advanced'] },
+];
+
+const builderEdges = [
+  ['html', 'css'],
+  ['css', 'content'],
+  ['css', 'responsive'],
+  ['responsive', 'advanced'],
+] as const;
+
+const nodeStyle = (status: string) => {
+  if (status === 'done') {
+    return {
+      borderColor: 'var(--mantine-color-green-5)',
+      background: '#fff',
+      dot: 'var(--mantine-color-green-5)',
+      shadow: '0 4px 18px rgba(34,197,94,0.12)',
+    };
+  }
+  if (status === 'active') {
+    return {
+      borderColor: 'var(--mantine-color-brand-6)',
+      background: 'rgba(74,144,217,0.10)',
+      dot: 'var(--mantine-color-brand-6)',
+      shadow: '0 0 0 5px rgba(74,144,217,0.10), 0 8px 26px rgba(60,90,140,0.14)',
+    };
+  }
+  if (status === 'placeholder') {
+    return {
+      borderColor: 'rgba(249,115,22,0.45)',
+      background: 'rgba(249,115,22,0.06)',
+      dot: '#ea580c',
+      shadow: '0 8px 24px rgba(249,115,22,0.10)',
+    };
+  }
+  return {
+    borderColor: 'rgba(100,120,160,0.26)',
+    background: '#fff',
+    dot: 'var(--mantine-color-grayx-4)',
+    shadow: '0 4px 18px rgba(60,90,140,0.08)',
+  };
+};
+
 export default function BuilderMode() {
+  const getNode = (id: string) => builderNodes.find((node) => node.id === id)!;
+
   return (
     <Box
       style={{
@@ -22,16 +77,15 @@ export default function BuilderMode() {
       <Box
         style={{
           display: 'grid',
-          gridTemplateColumns: '220px 1fr 300px',
+          gridTemplateColumns: '240px minmax(520px, 1fr) 300px',
           gap: 16,
-          height: 'calc(100vh - 60px - 24px - 24px - 30px)',
+          minHeight: 'calc(100vh - 60px - 24px - 24px - 30px)',
         }}
       >
-        {/* Left */}
         <Paper withBorder radius="md" p={14} style={{ overflow: 'auto' }}>
           <TextInput
             leftSection={<IconSearch size={14} />}
-            placeholder="Nodes suchen…"
+            placeholder="Nodes suchen..."
             radius="md"
             styles={{ input: { background: 'var(--mantine-color-grayx-0)' } }}
             mb={12}
@@ -42,179 +96,155 @@ export default function BuilderMode() {
           </Button>
 
           <Stack gap={10} mt={14}>
-            <Paper withBorder radius="md" p={10} style={{ background: 'var(--mantine-color-grayx-0)' }}>
-              <Text size="12px" fw={700}>HTML Basics</Text>
-              <Text size="10px" c="grayx.4">Beginner · Beginner</Text>
-              <Group gap={6} mt={6}>
-                <Badge variant="light" color="brand" size="xs">HTML</Badge>
-                <Badge variant="light" color="teal" size="xs">CSS</Badge>
-                <Badge variant="light" color="gray" size="xs">Beginner</Badge>
-              </Group>
-            </Paper>
+            {builderNodes.filter((node) => node.status !== 'placeholder').map((node) => {
+              const visual = nodeStyle(node.status);
 
-            <Paper
-              withBorder
-              radius="md"
-              p={10}
-              style={{
-                background: 'rgba(74,144,217,0.10)',
-                borderColor: 'rgba(74,144,217,0.35)',
-              }}
-            >
-              <Text size="12px" fw={700} c="brand.7">CSS Fundamentals</Text>
-              <Text size="10px" c="grayx.4">Activatable · 100XP</Text>
-              <Group gap={6} mt={6}>
-                <Badge variant="light" color="brand" size="xs">HTML</Badge>
-                <Badge variant="light" color="teal" size="xs">CSS</Badge>
-                <Badge variant="light" color="gray" size="xs">Beginner</Badge>
-              </Group>
-            </Paper>
-
-            <Paper withBorder radius="md" p={10} style={{ background: 'var(--mantine-color-grayx-0)' }}>
-              <Text size="12px" fw={700}>Intro to JavaScript</Text>
-              <Text size="10px" c="grayx.4">Advance · Beginner</Text>
-              <Group gap={6} mt={6}>
-                <Badge variant="light" color="brand" size="xs">HTML</Badge>
-                <Badge variant="light" color="teal" size="xs">CSS</Badge>
-              </Group>
-            </Paper>
-
-            <Paper withBorder radius="md" p={10} style={{ background: 'var(--mantine-color-grayx-0)' }}>
-              <Text size="12px" fw={700}>Advanced CSS</Text>
-              <Text size="10px" c="grayx.4">Intermediate · 25 min</Text>
-              <Group gap={6} mt={6}>
-                <Badge variant="light" color="brand" size="xs">CSS</Badge>
-                <Badge variant="light" color="gray" size="xs">Intermediate</Badge>
-              </Group>
-            </Paper>
+              return (
+                <Paper
+                  key={node.id}
+                  withBorder
+                  radius="md"
+                  p={10}
+                  style={{
+                    background: node.status === 'active' ? 'rgba(74,144,217,0.10)' : 'var(--mantine-color-grayx-0)',
+                    borderColor: visual.borderColor,
+                  }}
+                >
+                  <Group gap={8} wrap="nowrap">
+                    <Box style={{ width: 8, height: 8, borderRadius: 999, background: visual.dot }} />
+                    <Box style={{ minWidth: 0 }}>
+                      <Text size="12px" fw={700} truncate>{node.label}</Text>
+                      <Text size="10px" c="grayx.4">
+                        {node.status === 'active' ? 'Selected · editable' : node.status === 'done' ? 'Completed' : 'Draft node'}
+                      </Text>
+                    </Box>
+                  </Group>
+                  <Group gap={6} mt={7}>
+                    {node.tags.map((tag) => (
+                      <Badge key={tag} variant="light" color={tag === 'CSS' ? 'brand' : 'gray'} size="xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </Group>
+                </Paper>
+              );
+            })}
           </Stack>
         </Paper>
 
-        {/* Canvas */}
         <Paper
           withBorder
           radius="md"
+          p={18}
           style={{
             position: 'relative',
-            overflow: 'hidden',
-            background: 'var(--mantine-color-grayx-0)',
+            overflow: 'auto',
+            background: '#fff',
             borderStyle: 'dashed',
             borderWidth: 2,
             borderColor: 'rgba(100,120,160,0.22)',
           }}
         >
-          {/* dotted background */}
+          <Group justify="space-between" mb={12}>
+            <Box>
+              <Text fw={800}>Path Canvas</Text>
+              <Text size="11px" c="grayx.5">Arrange nodes and connect learning steps.</Text>
+            </Box>
+            <Group gap={6}>
+              <Badge variant="light" color="green">Completed</Badge>
+              <Badge variant="light" color="brand">Selected</Badge>
+              <Badge variant="light" color="orange">New content</Badge>
+            </Group>
+          </Group>
+
           <Box
             style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: 'radial-gradient(circle, rgba(100,120,160,0.18) 1px, transparent 1px)',
+              position: 'relative',
+              width: 720,
+              height: 420,
+              margin: '0 auto',
+              backgroundImage: 'radial-gradient(circle, rgba(100,120,160,0.16) 1px, transparent 1px)',
               backgroundSize: '20px 20px',
-              opacity: 0.55,
-            }}
-          />
-
-          {/* connectors */}
-          <Box
-            component="svg"
-            viewBox="0 0 500 460"
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'none',
+              borderRadius: 12,
             }}
           >
-            <path d="M 120 120 C 160 120 190 150 220 160" stroke="rgba(74,144,217,0.30)" strokeWidth="1.5" fill="none" strokeDasharray="6 3"/>
-            <path d="M 220 160 C 270 160 300 190 320 190" stroke="rgba(74,144,217,0.55)" strokeWidth="2" fill="none"/>
-            <path d="M 320 190 C 360 190 390 240 400 240" stroke="rgba(100,120,160,0.22)" strokeWidth="1.5" fill="none" strokeDasharray="6 3"/>
-            <path d="M 320 190 C 350 160 370 130 400 120" stroke="rgba(100,120,160,0.22)" strokeWidth="1.5" fill="none" strokeDasharray="6 3"/>
+            <Box
+              component="svg"
+              viewBox="0 0 720 420"
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+            >
+              {builderEdges.map(([from, to]) => {
+                const a = getNode(from);
+                const b = getNode(to);
+                const x1 = a.x + a.w;
+                const y1 = a.y + 17;
+                const x2 = b.x;
+                const y2 = b.y + 17;
+                const curve = Math.max(42, Math.min(90, Math.abs(x2 - x1) / 2));
+
+                return (
+                  <path
+                    key={`${from}-${to}`}
+                    d={`M ${x1} ${y1} C ${x1 + curve} ${y1} ${x2 - curve} ${y2} ${x2} ${y2}`}
+                    stroke={to === 'content' ? 'rgba(249,115,22,0.42)' : 'rgba(74,144,217,0.36)'}
+                    strokeWidth={to === 'content' ? 2 : 1.6}
+                    strokeDasharray={to === 'content' ? '5 5' : undefined}
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                );
+              })}
+            </Box>
+
+            {builderNodes.map((node) => {
+              const visual = nodeStyle(node.status);
+
+              return (
+                <Paper
+                  key={node.id}
+                  radius={999}
+                  withBorder
+                  style={{
+                    position: 'absolute',
+                    top: node.y,
+                    left: node.x,
+                    width: node.w,
+                    height: 34,
+                    padding: '0 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    borderColor: visual.borderColor,
+                    background: visual.background,
+                    boxShadow: visual.shadow,
+                  }}
+                >
+                  <Box style={{ width: 8, height: 8, borderRadius: 999, background: visual.dot }} />
+                  <Text size="12px" fw={node.status === 'active' ? 800 : 650} truncate>
+                    {node.label}
+                  </Text>
+                  {node.status === 'placeholder' && (
+                    <IconPlus size={14} color="#ea580c" style={{ marginLeft: 'auto' }} />
+                  )}
+                </Paper>
+              );
+            })}
           </Box>
-
-          {/* nodes */}
-          <Paper radius={999} withBorder style={{ position: 'absolute', top: 100, left: 60, padding: '8px 14px', display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Box style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--mantine-color-green-5)' }} />
-            <Text size="12px" fw={600}>HTML Basics</Text>
-          </Paper>
-
-          <Paper
-            radius={999}
-            withBorder
-            style={{
-              position: 'absolute',
-              top: 140,
-              left: 175,
-              padding: '8px 14px',
-              display: 'flex',
-              gap: 8,
-              alignItems: 'center',
-              background: 'rgba(74,144,217,0.10)',
-              borderColor: 'rgba(74,144,217,0.35)',
-            }}
-          >
-            <Box style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--mantine-color-brand-6)' }} />
-            <Text size="12px" fw={700} c="brand.7">CSS Fundamentals</Text>
-            <Box style={{ marginLeft: 6, opacity: 0.6 }}>＋</Box>
-          </Paper>
-
-          <Paper
-            radius={999}
-            withBorder
-            style={{
-              position: 'absolute',
-              top: 170,
-              left: 320,
-              padding: '8px 14px',
-              display: 'flex',
-              gap: 8,
-              alignItems: 'center',
-              borderStyle: 'dashed',
-              color: 'var(--mantine-color-grayx-4)',
-              background: 'transparent',
-            }}
-          >
-            ＋ <Text size="12px" fw={600} c="grayx.4">Add Content</Text>
-          </Paper>
-
-          <Paper radius={999} withBorder style={{ position: 'absolute', top: 100, left: 340, padding: '8px 14px', display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Box style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--mantine-color-grayx-4)' }} />
-            <Text size="12px" fw={600}>Advanced CSS</Text>
-          </Paper>
-
-          <Paper radius={999} withBorder style={{ position: 'absolute', top: 220, left: 340, padding: '8px 14px', display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Box style={{ width: 8, height: 8, borderRadius: 999, background: 'var(--mantine-color-grayx-4)' }} />
-            <Text size="12px" fw={600}>Advanced…</Text>
-          </Paper>
-
-          <Text
-            size="11px"
-            c="grayx.4"
-            tt="uppercase"
-            fw={600}
-            style={{
-              position: 'absolute',
-              bottom: 14,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              letterSpacing: '0.8px',
-            }}
-          >
-            UX/UI Design Moodboard
-          </Text>
         </Paper>
 
-        {/* Right */}
         <Paper withBorder radius="md" p={14} style={{ overflow: 'auto' }}>
-          <Text fw={700} mb={12}>Add Content</Text>
+          <Text fw={800} mb={4}>Add Content</Text>
+          <Text size="11px" c="grayx.5" mb={14}>
+            Attach a source to the selected node and define how learners should work through it.
+          </Text>
 
           <Stack gap={12}>
             <div>
               <Text size="11px" fw={700} c="grayx.5" tt="uppercase" style={{ letterSpacing: '0.6px' }}>
-                Add Content
+                Source
               </Text>
               <TextInput
-                placeholder="Content URL oder Titel…"
+                placeholder="URL, PDF oder Titel..."
                 radius="md"
                 styles={{ input: { background: 'var(--mantine-color-grayx-0)' } }}
               />
@@ -225,22 +255,11 @@ export default function BuilderMode() {
                 Category
               </Text>
               <Select
-                data={['Mindfulness', 'Productivity', 'Growth']}
-                defaultValue="Mindfulness"
+                data={['Web Basics', 'CSS', 'Mindset', 'Productivity']}
+                defaultValue="CSS"
                 radius="md"
                 styles={{ input: { background: 'var(--mantine-color-grayx-0)' } }}
               />
-            </div>
-
-            <div>
-              <Text size="11px" fw={700} c="grayx.5" tt="uppercase" style={{ letterSpacing: '0.6px' }}>
-                Tags
-              </Text>
-              <Group gap={6}>
-                <Badge variant="light" color="brand">Beginner</Badge>
-                <Badge variant="light" color="teal">+Boo…</Badge>
-                <Badge variant="outline" color="gray">+ Add Tag</Badge>
-              </Group>
             </div>
 
             <div>
@@ -249,27 +268,37 @@ export default function BuilderMode() {
               </Text>
               <Stack gap={8} mt={6}>
                 {[
-                  { t: 'URL', bg: '#e8f5e9', ico: '🔗' },
-                  { t: 'Video', bg: '#fef2f2', ico: '🎬' },
-                  { t: 'PDF', bg: '#fff7ed', ico: '📄' },
-                  { t: 'Checklist', bg: 'rgba(46,191,165,0.14)', ico: '✅' },
-                ].map((x) => (
-                  <Paper key={x.t} withBorder radius="md" p={10} style={{ background: 'var(--mantine-color-grayx-0)' }}>
-                    <Group justify="space-between">
-                      <Group gap={10}>
-                        <Box style={{ width: 28, height: 28, borderRadius: 8, background: x.bg, display: 'grid', placeItems: 'center' }}>
-                          {x.ico}
-                        </Box>
-                        <Text size="13px" fw={600}>{x.t}</Text>
+                  { t: 'URL', bg: '#e8f5e9', icon: IconLink },
+                  { t: 'Video', bg: '#fef2f2', icon: IconVideo },
+                  { t: 'PDF', bg: '#fff7ed', icon: IconFileText },
+                  { t: 'Checklist', bg: 'rgba(46,191,165,0.14)', icon: IconChecklist },
+                ].map((item) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <Paper key={item.t} withBorder radius="md" p={10} style={{ background: 'var(--mantine-color-grayx-0)' }}>
+                      <Group justify="space-between">
+                        <Group gap={10}>
+                          <Box style={{ width: 28, height: 28, borderRadius: 8, background: item.bg, display: 'grid', placeItems: 'center' }}>
+                            <Icon size={15} />
+                          </Box>
+                          <Text size="13px" fw={600}>{item.t}</Text>
+                        </Group>
+                        <Text c="grayx.4">›</Text>
                       </Group>
-                      <Text c="grayx.4">›</Text>
-                    </Group>
-                  </Paper>
-                ))}
+                    </Paper>
+                  );
+                })}
               </Stack>
             </div>
 
-            <Button radius="md" mt="auto">Start Node</Button>
+            <Group gap={6}>
+              <Badge variant="light" color="brand">CSS</Badge>
+              <Badge variant="light" color="gray">Intermediate</Badge>
+              <Badge variant="outline" color="gray">+ Add Tag</Badge>
+            </Group>
+
+            <Button radius="md" mt="auto">Attach to CSS Fundamentals</Button>
           </Stack>
         </Paper>
       </Box>
