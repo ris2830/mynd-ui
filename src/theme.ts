@@ -8,6 +8,6 @@ export const theme = createTheme({
     grayx: ['#f6f7fb','#eef1f6','#e5e7eb','#cbd5e1','#94a3b8','#6b7280','#475569','#334155','#1e293b','#0f172a'],
   },
   fontFamily: 'DM Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif',
-  headings: { fontFamily: 'DM Serif Display, DM Sans, Inter, system-ui, sans-serif' },
+  headings: { fontFamily: 'DM Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif' },
   defaultRadius: 14,
 });

@@ -21,3 +21,65 @@
 .myndSidebar:hover .myndSidebarLogoText {
   opacity: 1;
 }
+
+.myndPage {
+  flex: 1;
+  min-height: calc(100vh - 60px);
+  padding: 24px 24px 96px 96px;
+  background: var(--mantine-color-grayx-0);
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.myndPageTitle {
+  letter-spacing: 0;
+}
+
+.journeyWorkspace,
+.topicLayout {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+.journeyWorkspace {
+  grid-template-columns: minmax(0, 1fr) 292px;
+}
+
+.topicLayout {
+  grid-template-columns: minmax(0, 1fr) minmax(292px, 328px);
+}
+
+.journeyMapColumn,
+.topicMainPanel,
+.topicRail {
+  min-width: 0;
+}
+
+.journeySideRail {
+  min-width: 0;
+  position: sticky;
+  top: 76px;
+}
+
+@media (max-width: 1200px) {
+  .journeyWorkspace,
+  .topicLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .journeySideRail {
+    position: static;
+  }
+}
+
+@media (max-width: 720px) {
+  .myndPage {
+    padding: 16px 12px 88px 84px;
+  }
+
+  .journeyWorkspace,
+  .topicLayout {
+    gap: 14px;
+  }
+}
