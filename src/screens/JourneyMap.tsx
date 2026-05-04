@@ -1,7 +1,6 @@
- 
 import { useRef, useState } from 'react';
-import { Box, Paper, Group, Text, SimpleGrid, Badge, Button, Switch, ActionIcon, Stack } from '@mantine/core';
-import { IconMinus, IconPlus, IconTarget, IconWand, IconZoomIn } from '@tabler/icons-react';
+import { Box, Paper, Group, Text, SimpleGrid, Badge, Button, Switch, ActionIcon, Stack, TextInput, SegmentedControl } from '@mantine/core';
+import { IconBrain, IconMessageCircle, IconMinus, IconPlus, IconSearch, IconTarget, IconWand, IconZoomIn } from '@tabler/icons-react';
 import { mapEdges, mapNodes } from '../data/demo';
 import { useFocusMode } from '../context/focusMode';
 
@@ -97,7 +96,20 @@ const nodeNotes: Record<string, NodeInfo> = {
   },
 };
 
-const orderedNodePositions: Record<string, { x: number; y: number }> = {
+const verticalNodePositions: Record<string, { x: number; y: number }> = {
+  html: { x: 520, y: 130 },
+  cssb: { x: 520, y: 230 },
+  dft: { x: 340, y: 310 },
+  cssf: { x: 700, y: 310 },
+  resp: { x: 520, y: 410 },
+  lph: { x: 340, y: 530 },
+  mr: { x: 700, y: 530 },
+  acss: { x: 520, y: 650 },
+  stoic: { x: 700, y: 650 },
+  mp: { x: 880, y: 650 },
+};
+
+const horizontalNodePositions: Record<string, { x: number; y: number }> = {
   html: { x: 145, y: 135 },
   dft: { x: 145, y: 225 },
   cssf: { x: 145, y: 315 },
@@ -122,18 +134,30 @@ export default function JourneyMap() {
   const { focusOn, setFocusOn } = useFocusMode();
   const mapRef = useRef<HTMLDivElement | null>(null);
   const didDragRef = useRef(false);
+  const [viewMode, setViewMode] = useState<'vertical' | 'horizontal'>('vertical');
+  const [mynaOpen, setMynaOpen] = useState(true);
   const [nodes, setNodes] = useState(() =>
-    mapNodes.map((node) => ({ ...node, ...orderedNodePositions[node.id] }))
+    mapNodes.map((node) => ({ ...node, ...verticalNodePositions[node.id] }))
   );
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set());
-  const [selectedNodeId, setSelectedNodeId] = useState('resp');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [dragging, setDragging] = useState<{ id: string; offsetX: number; offsetY: number; startX: number; startY: number } | null>(null);
   const getNodeWidth = (label: string) => Math.min(260, Math.max(150, label.length * 7.2 + 64));
   const NODE_H = 34;
   const EXPANDED_NODE_H = 146;
   const getNodeHeight = (id: string) => (expandedNodes.has(id) ? EXPANDED_NODE_H : NODE_H);
-  const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? nodes[0];
+  const selectedNode = selectedNodeId ? nodes.find((node) => node.id === selectedNodeId) : undefined;
   const selectedInfo = selectedNode ? nodeNotes[selectedNode.id] : undefined;
+
+  const changeViewMode = (value: string) => {
+    const nextMode = value as 'vertical' | 'horizontal';
+    const positions = nextMode === 'vertical' ? verticalNodePositions : horizontalNodePositions;
+
+    setViewMode(nextMode);
+    setSelectedNodeId(null);
+    setExpandedNodes(new Set());
+    setNodes(mapNodes.map((node) => ({ ...node, ...positions[node.id] })));
+  };
 
   const toggleNode = (id: string) => {
     setExpandedNodes((current) => {
@@ -183,8 +207,12 @@ export default function JourneyMap() {
       }}
     >
       <Text size="12px" c="grayx.4" mb={16}>
-        MYnd <span style={{ opacity: 0.5 }}>›</span>{' '}
+        MYnd <span style={{ opacity: 0.5 }}>{'>'}</span>{' '}
         <b style={{ color: 'var(--mantine-color-grayx-9)' }}>Journey Map</b>
+      </Text>
+
+      <Text size="22px" fw={800} mb={16} c="grayx.9">
+        Hallo User
       </Text>
 
       <SimpleGrid cols={{ base: 2, md: 4 }} spacing={12} mb={20}>
@@ -219,26 +247,39 @@ export default function JourneyMap() {
         withBorder
         radius="md"
         p={20}
+        onClick={(event) => {
+          const target = event.target as HTMLElement;
+          if (!target.closest('[data-map-ui="true"]')) {
+            setSelectedNodeId(null);
+          }
+        }}
         style={{
           position: 'relative',
-          minHeight: 560,
+          minHeight: viewMode === 'vertical' ? 820 : 560,
           overflow: 'hidden',
           boxShadow: '0 2px 16px rgba(60,90,140,0.08)',
-          background:
-            'radial-gradient(circle at 30% 40%, rgba(74,144,217,0.05) 0%, transparent 55%),' +
-            'radial-gradient(circle at 70% 70%, rgba(46,191,165,0.05) 0%, transparent 55%),' +
-            '#fff',
+          background: '#f8fafc',
         }}
       >
         <Group justify="space-between" mb={10}>
-          <Group gap={10}>
-            <Badge variant="light" color="brand">Mindset</Badge>
-            <Badge variant="light" color="gray">Productivity</Badge>
-            <Badge variant="light" color="gray">Growth</Badge>
+          <Group gap={10} data-map-ui="true">
+            <Badge variant="filled" color="brand">Skilltree</Badge>
+            <Badge variant="light" color="gray">{viewMode === 'vertical' ? 'Vertikal' : 'Horizontal'}</Badge>
+            <Badge variant="light" color="orange">Myna aktiv</Badge>
           </Group>
 
-          <Group gap={10}>
-            {/* rein visuell */}
+          <Group gap={10} data-map-ui="true">
+            <SegmentedControl
+              size="xs"
+              radius="md"
+              value={viewMode}
+              onChange={changeViewMode}
+              data={[
+                { label: 'Vertikal', value: 'vertical' },
+                { label: 'Horizontal', value: 'horizontal' },
+              ]}
+            />
+
             <Box>
               <Switch
                 checked={focusOn}
@@ -271,75 +312,81 @@ export default function JourneyMap() {
             background: 'rgba(255,255,255,0.88)',
             backdropFilter: 'blur(8px)',
           }}
+          data-map-ui="true"
         >
           <Group gap={8} wrap="nowrap">
             <Badge size="xs" variant="light" color="brand">Tipp</Badge>
             <Text size="11px" c="grayx.6">
-              Klicke eine Node fuer Details. Ziehe Nodes, um deine Lernreise zu strukturieren.
+              Klicke eine Node fuer Details. Myna hilft dir, Inhalte zu finden und sinnvoll zu verknuepfen.
             </Text>
           </Group>
         </Paper>
 
-        {[
+        {(viewMode === 'vertical' ? [
+          { label: 'Start', y: 111 },
+          { label: 'Grundlagen', y: 211 },
+          { label: 'Verknuepfung', y: 391 },
+          { label: 'Vertiefung', y: 511 },
+          { label: 'Advanced', y: 631 },
+        ] : [
           { label: 'Basics', x: 145 },
           { label: 'Aktuell', x: 390 },
           { label: 'Naechste Schritte', x: 635 },
           { label: 'Advanced', x: 845 },
-        ].map((column) => (
-          <Text
-            key={column.label}
-            size="10px"
-            fw={800}
-            c="grayx.4"
-            tt="uppercase"
+        ]).map((section) => (
+          <Badge
+            key={section.label}
+            size="sm"
+            variant="light"
+            color="gray"
             style={{
               position: 'absolute',
-              top: 96,
-              left: column.x,
+              top: 'y' in section ? section.y : 96,
+              left: 'x' in section ? section.x : 20,
               zIndex: 1,
-              letterSpacing: '0.7px',
+              letterSpacing: '0.4px',
             }}
           >
-            {column.label}
-          </Text>
+            {section.label}
+          </Badge>
         ))}
 
         <Box
-  component="svg"
-  style={{
-    position: 'absolute',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    pointerEvents: 'none',
-    zIndex: 0,
-  }}
->
-  {mapEdges.map(([a, b], idx) => {
-    const na = nodes.find((n) => n.id === a)!;
-    const nb = nodes.find((n) => n.id === b)!;
+          component="svg"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        >
+          {mapEdges.map(([a, b], idx) => {
+            const na = nodes.find((n) => n.id === a)!;
+            const nb = nodes.find((n) => n.id === b)!;
 
-    const wa = getNodeWidth(na.label);
-    const wb = getNodeWidth(nb.label);
-    const ha = getNodeHeight(na.id);
-    const hb = getNodeHeight(nb.id);
+            const wa = getNodeWidth(na.label);
+            const wb = getNodeWidth(nb.label);
+            const ha = getNodeHeight(na.id);
+            const hb = getNodeHeight(nb.id);
 
-    const centerA = { x: na.x + wa / 2, y: na.y + ha / 2 };
-    const centerB = { x: nb.x + wb / 2, y: nb.y + hb / 2 };
+            const centerA = { x: na.x + wa / 2, y: na.y + ha / 2 };
+            const centerB = { x: nb.x + wb / 2, y: nb.y + hb / 2 };
 
-    return (
-      <path
-        key={idx}
-        d={`M ${centerA.x} ${centerA.y} L ${centerB.x} ${centerB.y}`}
-        stroke="rgba(100,120,160,0.24)"
-        strokeWidth={1.3}
-        fill="none"
-        strokeDasharray="5 6"
-        strokeLinecap="round"
-      />
-    );
-  })}
-</Box>
+            return (
+              <path
+                key={idx}
+                d={`M ${centerA.x} ${centerA.y} L ${centerB.x} ${centerB.y}`}
+                stroke="rgba(30,41,59,0.42)"
+                strokeWidth={2.1}
+                fill="none"
+                strokeDasharray="6 5"
+                strokeLinecap="round"
+              />
+            );
+          })}
+        </Box>
 
         {nodes.map((n) => {
           const isDone = n.status === 'done';
@@ -365,7 +412,7 @@ export default function JourneyMap() {
           const bg = isRecommended
             ? 'rgba(249,115,22,0.07)'
             : isDoing
-              ? 'rgba(74,144,217,0.10)'
+              ? '#eef6ff'
               : '#fff';
 
           const dot = status.dot;
@@ -382,6 +429,7 @@ export default function JourneyMap() {
               key={n.id}
               radius={isExpanded ? 'md' : 999}
               withBorder
+              data-map-ui="true"
               onPointerDown={(event) => {
                 didDragRef.current = false;
                 setSelectedNodeId(n.id);
@@ -492,73 +540,151 @@ export default function JourneyMap() {
           );
         })}
 
+        {selectedNode && selectedInfo && (
+          <Paper
+            radius="md"
+            withBorder
+            p={12}
+            data-map-ui="true"
+            style={{
+              position: 'absolute',
+              top: 118,
+              right: 24,
+              width: 270,
+              zIndex: 3,
+              borderColor: 'rgba(249,115,22,0.35)',
+              boxShadow: '0 12px 42px rgba(60,90,140,0.16)',
+              background: 'rgba(255,255,255,0.96)',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <Text size="10px" c="grayx.4" tt="uppercase" style={{ letterSpacing: '0.5px' }}>
+              {selectedInfo.category} - {selectedInfo.level}
+            </Text>
+            <Text fw={800} mt={4} mb={6}>{selectedNode.label}</Text>
+            <Group gap={6} mb={10}>
+              <Badge variant="light" color={statusConfig[selectedNode.status].color}>
+                {statusConfig[selectedNode.status].label}
+              </Badge>
+              {recommendedNodeIds.has(selectedNode.id) && (
+                <Badge variant="light" color="orange">Empfohlen</Badge>
+              )}
+            </Group>
+            <Text size="11px" c="grayx.6" lh={1.35} mb={8}>
+              {selectedInfo.summary}
+            </Text>
+            <Box style={{ height: 6, background: 'var(--mantine-color-grayx-2)', borderRadius: 999, overflow: 'hidden' }}>
+              <Box
+                style={{
+                  width: `${selectedInfo.progress}%`,
+                  height: '100%',
+                  background: selectedNode.status === 'done'
+                    ? 'var(--mantine-color-green-5)'
+                    : selectedNode.status === 'doing'
+                      ? 'var(--mantine-color-brand-5)'
+                      : 'var(--mantine-color-orange-5)',
+                }}
+              />
+            </Box>
+            <Text size="11px" c="grayx.4" mt={5} mb={8}>Progress: {selectedInfo.progress}%</Text>
+            <Paper radius="md" p={8} mb={8} style={{ background: 'rgba(249,115,22,0.07)' }}>
+              <Text size="10px" c="orange.7" fw={800} tt="uppercase" style={{ letterSpacing: '0.5px' }}>
+                Next Best Action
+              </Text>
+              <Text size="12px" fw={700} mt={3}>{selectedInfo.action}</Text>
+            </Paper>
+            <Group gap={6} mb={8}>
+              {selectedInfo.points.map((point) => (
+                <Badge key={point} size="xs" variant="light" color="gray">
+                  {point}
+                </Badge>
+              ))}
+            </Group>
+            <Button fullWidth radius="md" size="sm">
+              {selectedNode.status === 'done' ? 'Review Node' : 'Start Node'}
+            </Button>
+          </Paper>
+        )}
+
         <Paper
           radius="md"
           withBorder
-          p={12}
+          p={mynaOpen ? 12 : 10}
+          data-map-ui="true"
           style={{
             position: 'absolute',
-            top: 188,
+            top: selectedNode ? 438 : 118,
             right: 24,
-            width: 238,
+            width: 270,
             zIndex: 3,
-            borderColor: 'rgba(249,115,22,0.35)',
-            boxShadow: '0 12px 42px rgba(60,90,140,0.16)',
-            background: 'rgba(255,255,255,0.96)',
-            backdropFilter: 'blur(8px)',
+            borderColor: 'rgba(74,144,217,0.28)',
+            boxShadow: '0 10px 34px rgba(60,90,140,0.12)',
+            background: 'rgba(255,255,255,0.97)',
           }}
         >
-          <Text size="10px" c="grayx.4" tt="uppercase" style={{ letterSpacing: '0.5px' }}>
-            {selectedInfo?.category} - {selectedInfo?.level}
-          </Text>
-          <Text hidden size="10px" c="grayx.4" tt="uppercase" style={{ letterSpacing: '0.5px' }}>
-            CSS · Intermediate
-          </Text>
-          <Text fw={800} mt={4} mb={6}>{selectedNode?.label}</Text>
-          <Group gap={6} mb={10}>
-            <Badge variant="light" color={selectedNode ? statusConfig[selectedNode.status].color : 'gray'}>
-              {selectedNode ? statusConfig[selectedNode.status].label : 'Offen'}
-            </Badge>
-            {selectedNode && recommendedNodeIds.has(selectedNode.id) && (
-              <Badge variant="light" color="orange">Empfohlen</Badge>
-            )}
+          <Group gap={8} justify="space-between" mb={mynaOpen ? 10 : 0} wrap="nowrap">
+            <Group gap={8} wrap="nowrap">
+              <Box
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 999,
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'linear-gradient(135deg, #4a90d9, #2ebfa5)',
+                  color: 'white',
+                }}
+              >
+                <IconBrain size={17} />
+              </Box>
+              <Box>
+                <Text fw={800} size="13px">Myna</Text>
+                <Text size="10px" c="grayx.5">KI-Assistent fuer Inhalte</Text>
+              </Box>
+            </Group>
+            <ActionIcon
+              variant="subtle"
+              color="gray"
+              radius="md"
+              aria-label={mynaOpen ? 'Myna einklappen' : 'Myna ausklappen'}
+              onClick={() => setMynaOpen((open) => !open)}
+            >
+              {mynaOpen ? <IconMinus size={15} /> : <IconPlus size={15} />}
+            </ActionIcon>
           </Group>
-          <Text size="11px" c="grayx.6" lh={1.35} mb={8}>
-            {selectedInfo?.summary}
-          </Text>
-          <Box style={{ height: 6, background: 'var(--mantine-color-grayx-2)', borderRadius: 999, overflow: 'hidden' }}>
-            <Box
-              style={{
-                width: `${selectedInfo?.progress ?? 0}%`,
-                height: '100%',
-                background: selectedNode?.status === 'done'
-                  ? 'var(--mantine-color-green-5)'
-                  : selectedNode?.status === 'doing'
-                    ? 'var(--mantine-color-brand-5)'
-                    : 'var(--mantine-color-orange-5)',
-              }}
-            />
-          </Box>
-          <Text size="11px" c="grayx.4" mt={5} mb={8}>Progress: {selectedInfo?.progress ?? 0}%</Text>
-          <Paper radius="md" p={8} mb={8} style={{ background: 'rgba(249,115,22,0.07)' }}>
-            <Text size="10px" c="orange.7" fw={800} tt="uppercase" style={{ letterSpacing: '0.5px' }}>
-              Next Best Action
-            </Text>
-            <Text size="12px" fw={700} mt={3}>{selectedInfo?.action}</Text>
-          </Paper>
-          <Group gap={6} mb={8}>
-            {selectedInfo?.points.map((point) => (
-              <Badge key={point} size="xs" variant="light" color="gray">
-                {point}
-              </Badge>
-            ))}
-          </Group>
-          <Button fullWidth radius="md" size="sm">
-            {selectedNode?.status === 'done' ? 'Review Node' : 'Start Node'}
-          </Button>
+
+          {mynaOpen && (
+            <>
+              <TextInput
+                leftSection={<IconSearch size={14} />}
+                placeholder="Inhalte suchen..."
+                radius="md"
+                size="xs"
+                mb={10}
+              />
+
+              <Paper radius="md" p={10} mb={10} style={{ background: 'rgba(74,144,217,0.08)' }}>
+                <Group gap={7} mb={5}>
+                  <IconMessageCircle size={14} color="var(--mantine-color-brand-6)" />
+                  <Text size="11px" fw={800} c="brand.7">Vorschlag</Text>
+                </Group>
+                <Text size="11px" c="grayx.6" lh={1.45}>
+                  Wenn du bei {selectedNode?.label ?? 'deinem Skilltree'} besser werden willst, verknuepfe zuerst PDF-Notizen mit einem kurzen Video.
+                </Text>
+              </Paper>
+
+              <Stack gap={6}>
+                {['Passende PDFs anzeigen', 'YouTube-Video verknuepfen', 'Podcast als Quelle finden'].map((item) => (
+                  <Button key={item} size="xs" variant="default" radius="md" justify="flex-start">
+                    {item}
+                  </Button>
+                ))}
+              </Stack>
+            </>
+          )}
         </Paper>
 
-        <Paper radius="md" withBorder p={12} style={{ position: 'absolute', left: 20, bottom: 20, zIndex: 2 }}>
+        <Paper data-map-ui="true" radius="md" withBorder p={12} style={{ position: 'absolute', left: 20, bottom: 20, zIndex: 2 }}>
           <Stack gap={6}>
             {Object.values(statusConfig).map((item) => (
               <Group key={item.label} gap={8}>
