@@ -97,29 +97,29 @@ const nodeNotes: Record<string, NodeInfo> = {
 };
 
 const verticalNodePositions: Record<string, { x: number; y: number }> = {
-  html: { x: 520, y: 130 },
-  cssb: { x: 520, y: 230 },
-  dft: { x: 340, y: 310 },
-  cssf: { x: 700, y: 310 },
-  resp: { x: 520, y: 410 },
-  lph: { x: 340, y: 530 },
-  mr: { x: 700, y: 530 },
-  acss: { x: 520, y: 650 },
-  stoic: { x: 700, y: 650 },
-  mp: { x: 880, y: 650 },
+  html: { x: 590, y: 150 },
+  cssb: { x: 590, y: 255 },
+  dft: { x: 440, y: 340 },
+  cssf: { x: 720, y: 340 },
+  resp: { x: 590, y: 455 },
+  lph: { x: 440, y: 590 },
+  mr: { x: 720, y: 590 },
+  acss: { x: 590, y: 720 },
+  stoic: { x: 720, y: 720 },
+  mp: { x: 805, y: 720 },
 };
 
 const horizontalNodePositions: Record<string, { x: number; y: number }> = {
-  html: { x: 145, y: 135 },
-  dft: { x: 145, y: 225 },
-  cssf: { x: 145, y: 315 },
-  cssb: { x: 390, y: 180 },
-  resp: { x: 390, y: 275 },
-  mr: { x: 635, y: 135 },
-  lph: { x: 635, y: 315 },
-  stoic: { x: 845, y: 125 },
-  mp: { x: 845, y: 220 },
-  acss: { x: 845, y: 350 },
+  html: { x: 170, y: 155 },
+  dft: { x: 170, y: 245 },
+  cssf: { x: 170, y: 335 },
+  cssb: { x: 380, y: 200 },
+  resp: { x: 380, y: 300 },
+  mr: { x: 600, y: 155 },
+  lph: { x: 600, y: 335 },
+  stoic: { x: 790, y: 145 },
+  mp: { x: 790, y: 240 },
+  acss: { x: 790, y: 370 },
 };
 
 const recommendedNodeIds = new Set(['mr', 'stoic', 'mp', 'lph', 'acss']);
@@ -139,13 +139,10 @@ export default function JourneyMap() {
   const [nodes, setNodes] = useState(() =>
     mapNodes.map((node) => ({ ...node, ...verticalNodePositions[node.id] }))
   );
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set());
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [dragging, setDragging] = useState<{ id: string; offsetX: number; offsetY: number; startX: number; startY: number } | null>(null);
-  const getNodeWidth = (label: string) => Math.min(260, Math.max(150, label.length * 7.2 + 64));
-  const NODE_H = 34;
-  const EXPANDED_NODE_H = 146;
-  const getNodeHeight = (id: string) => (expandedNodes.has(id) ? EXPANDED_NODE_H : NODE_H);
+  const HIT_SIZE = 54;
+  const DOT_SIZE = 24;
   const selectedNode = selectedNodeId ? nodes.find((node) => node.id === selectedNodeId) : undefined;
   const selectedInfo = selectedNode ? nodeNotes[selectedNode.id] : undefined;
 
@@ -155,17 +152,7 @@ export default function JourneyMap() {
 
     setViewMode(nextMode);
     setSelectedNodeId(null);
-    setExpandedNodes(new Set());
     setNodes(mapNodes.map((node) => ({ ...node, ...positions[node.id] })));
-  };
-
-  const toggleNode = (id: string) => {
-    setExpandedNodes((current) => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
   };
 
   const moveNode = (clientX: number, clientY: number) => {
@@ -180,14 +167,12 @@ export default function JourneyMap() {
       current.map((node) => {
         if (node.id !== dragging.id) return node;
 
-        const width = getNodeWidth(node.label);
-        const height = getNodeHeight(node.id);
         const nextX = Math.min(
-          bounds.width - width - 20,
+          bounds.width - 70,
           Math.max(20, clientX - bounds.left - dragging.offsetX)
         );
         const nextY = Math.min(
-          bounds.height - height - 20,
+          bounds.height - 70,
           Math.max(105, clientY - bounds.top - dragging.offsetY)
         );
 
@@ -206,14 +191,21 @@ export default function JourneyMap() {
         minHeight: 'calc(100vh - 60px)',
       }}
     >
-      <Text size="12px" c="grayx.4" mb={16}>
+      <Text size="12px" c="grayx.4" mb={6}>
         MYnd <span style={{ opacity: 0.5 }}>{'>'}</span>{' '}
         <b style={{ color: 'var(--mantine-color-grayx-9)' }}>Journey Map</b>
       </Text>
 
-      <Text size="22px" fw={800} mb={16} c="grayx.9">
-        Hallo User
-      </Text>
+      <Group justify="space-between" align="flex-end" mb={16}>
+        <Box>
+          <Text size="26px" fw={800} c="grayx.9" lh={1.15}>
+            Deine Journey Map
+          </Text>
+          <Text size="13px" c="grayx.5" mt={4}>
+            Hallo User, hier siehst du deinen aktuellen Lernfortschritt und die naechsten Schritte.
+          </Text>
+        </Box>
+      </Group>
 
       <SimpleGrid cols={{ base: 2, md: 4 }} spacing={12} mb={20}>
         <Paper p={16} radius="md" withBorder>
@@ -366,20 +358,15 @@ export default function JourneyMap() {
             const na = nodes.find((n) => n.id === a)!;
             const nb = nodes.find((n) => n.id === b)!;
 
-            const wa = getNodeWidth(na.label);
-            const wb = getNodeWidth(nb.label);
-            const ha = getNodeHeight(na.id);
-            const hb = getNodeHeight(nb.id);
-
-            const centerA = { x: na.x + wa / 2, y: na.y + ha / 2 };
-            const centerB = { x: nb.x + wb / 2, y: nb.y + hb / 2 };
+            const centerA = { x: na.x, y: na.y };
+            const centerB = { x: nb.x, y: nb.y };
 
             return (
               <path
                 key={idx}
                 d={`M ${centerA.x} ${centerA.y} L ${centerB.x} ${centerB.y}`}
-                stroke="rgba(30,41,59,0.42)"
-                strokeWidth={2.1}
+                stroke="rgba(30,41,59,0.48)"
+                strokeWidth={2.25}
                 fill="none"
                 strokeDasharray="6 5"
                 strokeLinecap="round"
@@ -388,56 +375,46 @@ export default function JourneyMap() {
           })}
         </Box>
 
-        {nodes.map((n) => {
+        {nodes.map((n, index) => {
           const isDone = n.status === 'done';
           const isDoing = n.status === 'doing';
           const isTodo = n.status === 'todo';
-          const isExpanded = expandedNodes.has(n.id);
           const isSelected = selectedNodeId === n.id;
           const isRecommended = focusOn && recommendedNodeIds.has(n.id);
-          const note = nodeNotes[n.id];
-          const nodeWidth = getNodeWidth(n.label);
-          const nodeHeight = getNodeHeight(n.id);
           const status = statusConfig[n.status];
-
-          const opacity = focusOn ? (isTodo || isDoing ? 1 : 0.35) : 1;
-
-          const borderColor =
-            isSelected ? 'var(--mantine-color-orange-5)'
-              : isRecommended ? '#ea580c'
-              : isDone ? 'var(--mantine-color-green-5)'
-              : isDoing ? 'var(--mantine-color-brand-6)'
-                : 'rgba(100,120,160,0.28)';
-
-          const bg = isRecommended
-            ? 'rgba(249,115,22,0.07)'
-            : isDoing
-              ? '#eef6ff'
-              : '#fff';
-
-          const dot = status.dot;
-
-          const glow =
-            isSelected
-              ? '0 0 0 4px rgba(249,115,22,0.16), 0 12px 34px rgba(60,90,140,0.18)'
-              : isRecommended
-              ? '0 0 0 6px rgba(249,115,22,0.08), 0 8px 40px rgba(60,90,140,0.13)'
-              : '0 2px 16px rgba(60,90,140,0.08)';
+          const labelAbove = viewMode === 'vertical'
+            ? ['html', 'cssb', 'resp', 'acss', 'mp'].includes(n.id)
+            : index % 2 === 0;
+          const opacity = focusOn ? (isTodo || isDoing ? 1 : 0.78) : 1;
+          const dotColor = isRecommended ? '#ea580c' : status.dot;
+          const dotSize = isSelected ? DOT_SIZE + 8 : isDoing ? DOT_SIZE + 4 : DOT_SIZE;
+          const ringColor = isSelected
+            ? 'rgba(249,115,22,0.28)'
+            : isRecommended
+              ? 'rgba(249,115,22,0.18)'
+              : isDone
+                ? 'rgba(34,197,94,0.16)'
+                : isDoing
+                  ? 'rgba(74,144,217,0.18)'
+                  : 'rgba(148,163,184,0.14)';
 
           return (
-            <Paper
+            <Box
               key={n.id}
-              radius={isExpanded ? 'md' : 999}
-              withBorder
+              component="button"
+              type="button"
               data-map-ui="true"
+              aria-label={`${n.label} oeffnen`}
               onPointerDown={(event) => {
                 didDragRef.current = false;
                 setSelectedNodeId(n.id);
                 event.currentTarget.setPointerCapture(event.pointerId);
+                if (!mapRef.current) return;
+                const bounds = mapRef.current.getBoundingClientRect();
                 setDragging({
                   id: n.id,
-                  offsetX: event.clientX - event.currentTarget.getBoundingClientRect().left,
-                  offsetY: event.clientY - event.currentTarget.getBoundingClientRect().top,
+                  offsetX: event.clientX - bounds.left - n.x,
+                  offsetY: event.clientY - bounds.top - n.y,
                   startX: event.clientX,
                   startY: event.clientY,
                 });
@@ -455,88 +432,57 @@ export default function JourneyMap() {
               }}
               style={{
                 position: 'absolute',
-                top: n.y,
-                left: n.x,
-                width: nodeWidth,
-                height: nodeHeight,
-                padding: isExpanded ? '12px 14px' : '0 14px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'stretch',
-                justifyContent: isExpanded ? 'flex-start' : 'center',
-                gap: 8,
-                fontSize: 12,
-                fontWeight: 600,
-                borderColor,
-                borderWidth: isSelected ? 2 : 1,
-                background: bg,
-                boxShadow: glow,
-                whiteSpace: 'nowrap',
+                top: n.y - HIT_SIZE / 2,
+                left: n.x - HIT_SIZE / 2,
+                width: HIT_SIZE,
+                height: HIT_SIZE,
+                border: 0,
+                padding: 0,
+                background: 'transparent',
+                outline: 'none',
+                overflow: 'visible',
                 opacity,
-                zIndex: 1,
+                zIndex: isSelected ? 3 : 1,
                 cursor: dragging?.id === n.id ? 'grabbing' : 'grab',
                 touchAction: 'none',
                 userSelect: 'none',
-                transition: dragging?.id === n.id ? 'none' : 'height 160ms ease, border-radius 160ms ease, box-shadow 160ms ease',
               }}
             >
-              {isSelected && (
-                <Badge
-                  size="xs"
-                  color="orange"
-                  variant="filled"
-                  style={{ position: 'absolute', top: -11, right: 12, pointerEvents: 'none' }}
-                >
-                  Ausgewaehlt
-                </Badge>
-              )}
-
-              <Group gap={8} wrap="nowrap" justify="space-between">
-                <Group gap={8} wrap="nowrap" style={{ minWidth: 0 }}>
-                  <Box style={{ width: 8, height: 8, borderRadius: 999, background: dot, flex: '0 0 auto' }} />
-                  <Text size="12px" fw={700} truncate>{n.label}</Text>
-                </Group>
-                <ActionIcon
-                  size={20}
-                  radius="xl"
-                  variant={isExpanded ? 'light' : 'subtle'}
-                  color={isExpanded ? 'orange' : 'gray'}
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setSelectedNodeId(n.id);
-                    toggleNode(n.id);
-                  }}
-                >
-                  {isExpanded ? <IconMinus size={13} /> : <IconPlus size={13} />}
-                </ActionIcon>
-              </Group>
-
-              {isExpanded && note && (
-                <Box style={{ borderTop: '1px solid var(--mantine-color-grayx-2)', paddingTop: 8 }}>
-                  <Group gap={6} mb={7}>
-                    <Badge size="xs" variant="light" color={status.color}>
-                      {status.label}
-                    </Badge>
-                    {isRecommended && (
-                      <Badge size="xs" variant="light" color="orange">
-                        Empfohlen
-                      </Badge>
-                    )}
-                  </Group>
-                  <Text size="10px" c="grayx.5" lh={1.35} style={{ whiteSpace: 'normal' }}>
-                    {note.summary}
-                  </Text>
-                  <Group gap={6} mt={8}>
-                    {note.points.map((point) => (
-                      <Badge key={point} size="xs" variant="light" color={isDone ? 'green' : isDoing ? 'brand' : 'gray'}>
-                        {point}
-                      </Badge>
-                    ))}
-                  </Group>
-                </Box>
-              )}
-            </Paper>
+              <Box
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: '50%',
+                  width: dotSize,
+                  height: dotSize,
+                  borderRadius: 999,
+                  transform: 'translate(-50%, -50%)',
+                  background: dotColor,
+                  border: '4px solid #fff',
+                  boxShadow: `0 0 0 ${isSelected ? 8 : 6}px ${ringColor}, 0 12px 30px rgba(30,41,59,0.16)`,
+                  transition: dragging?.id === n.id ? 'none' : 'width 140ms ease, height 140ms ease, box-shadow 140ms ease',
+                }}
+              />
+              <Text
+                size={isSelected ? '13px' : '12px'}
+                fw={isSelected ? 850 : 750}
+                c={isSelected ? 'orange.7' : 'grayx.8'}
+                ta="center"
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: labelAbove ? -30 : 40,
+                  width: 170,
+                  transform: 'translateX(-50%)',
+                  lineHeight: 1.15,
+                  letterSpacing: 0,
+                  textShadow: '0 1px 0 rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.95)',
+                  pointerEvents: 'none',
+                }}
+              >
+                {n.label}
+              </Text>
+            </Box>
           );
         })}
 
