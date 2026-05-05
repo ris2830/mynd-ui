@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { Box, Group, Text, Paper, Badge, ActionIcon, Button, Stack, Tabs } from '@mantine/core';
 import {
   IconBrain,
+  IconBrandSpotify,
   IconBrandYoutube,
   IconChevronRight,
   IconDownload,
   IconExternalLink,
-  IconFileText,
+  IconFileTypePdf,
   IconMessageCircle,
   IconMinus,
   IconPencil,
@@ -19,11 +20,11 @@ const materials = [
   {
     id: 'video',
     title: 'Responsive Design Grundlagen',
-    type: 'Video',
+    type: 'YouTube',
     meta: 'YouTube - 7:06 min - 60% angesehen',
     status: 'In Bearbeitung',
-    color: 'brand' as const,
-    icon: IconVideo,
+    color: 'red' as const,
+    icon: IconBrandYoutube,
     action: 'Video anschauen',
     detail: 'Kurzes Einstiegsvideo mit Fokus auf Breakpoints, flexible Layouts und typische CSS-Fehler.',
   },
@@ -34,31 +35,30 @@ const materials = [
     meta: 'PDF - 3 Seiten - Referenz',
     status: 'Gespeichert',
     color: 'orange' as const,
-    icon: IconFileText,
+    icon: IconFileTypePdf,
     action: 'PDF herunterladen',
     detail: 'Kompakte Referenz zu Margin, Border, Padding und Content-Box. Gut zum Nachschlagen.',
   },
   {
-    id: 'youtube',
-    title: 'CSS Grid Crashkurs',
-    type: 'YouTube',
-    meta: 'Weblink - youtube.com - 14 min',
+    id: 'spotify',
+    title: 'Layout Thinking Podcast',
+    type: 'Spotify',
+    meta: 'Spotify - Podcast - 18 min',
     status: 'Neu',
-    color: 'red' as const,
-    icon: IconBrandYoutube,
-    action: 'Weblink oeffnen',
-    detail: 'Externer YouTube-Link fuer ein tieferes Beispiel zu CSS Grid und responsiven Kartenlayouts.',
+    color: 'teal' as const,
+    icon: IconBrandSpotify,
+    action: 'Podcast oeffnen',
+    detail: 'Kurzer Audio-Impuls zu Layout-Denken, visueller Hierarchie und responsiven Entscheidungen.',
   },
 ];
 
 const visualPositions = [
-  { x: 58, y: 92 },
-  { x: 492, y: 92 },
-  { x: 255, y: 348 },
+  { x: 170, y: 132, label: 'below' as const },
+  { x: 550, y: 132, label: 'below' as const },
+  { x: 170, y: 382, label: 'below' as const },
 ];
 
-const topicNode = { x: 250, y: 216, w: 220, h: 70 };
-const materialCard = { w: 210, h: 78 };
+const topicNode = { x: 360, y: 258 };
 
 type Material = (typeof materials)[number];
 
@@ -156,8 +156,8 @@ function VisualTopicMap({ selectedId, onSelect }: { selectedId: string; onSelect
       <Box
         style={{
           position: 'relative',
-          width: 760,
-          height: 500,
+          width: 720,
+          height: 540,
           margin: '0 auto',
           borderRadius: 12,
           overflow: 'hidden',
@@ -169,86 +169,145 @@ function VisualTopicMap({ selectedId, onSelect }: { selectedId: string; onSelect
       >
         <Box
           component="svg"
-          viewBox="0 0 760 500"
-          style={{ position: 'absolute', inset: 0, width: 760, height: 500, pointerEvents: 'none' }}
+          viewBox="0 0 720 540"
+          style={{ position: 'absolute', inset: 0, width: 720, height: 540, pointerEvents: 'none' }}
         >
           {visualPositions.map((pos, index) => {
-            const fromX = topicNode.x + topicNode.w / 2;
-            const fromY = topicNode.y + topicNode.h / 2;
-            const toX = pos.x + materialCard.w / 2;
-            const toY = pos.y + materialCard.h / 2;
-
             return (
               <path
                 key={materials[index].title}
-                d={`M ${fromX} ${fromY} L ${toX} ${toY}`}
-                stroke="rgba(30,41,59,0.58)"
-                strokeWidth={2.6}
-                strokeDasharray="6 5"
+                d={`M ${topicNode.x} ${topicNode.y} L ${pos.x} ${pos.y}`}
+                stroke="rgba(30,41,59,0.62)"
+                strokeWidth={2.4}
+                strokeDasharray="7 6"
                 strokeLinecap="round"
               />
             );
           })}
         </Box>
 
-        <Paper
-          radius={999}
-          withBorder
+        <Box
           style={{
             position: 'absolute',
-            left: topicNode.x,
-            top: topicNode.y,
+            left: topicNode.x - 28,
+            top: topicNode.y - 28,
             zIndex: 2,
-            width: topicNode.w,
-            height: topicNode.h,
+            width: 56,
+            height: 56,
+            borderRadius: 999,
             display: 'grid',
             placeItems: 'center',
-            borderColor: 'var(--mantine-color-brand-6)',
-            boxShadow: '0 0 0 6px rgba(74,144,217,0.10), 0 8px 28px rgba(60,90,140,0.14)',
-            background: '#fff',
+            background: '#111827',
+            color: 'white',
+            border: '5px solid #fff',
+            boxShadow: '0 0 0 8px rgba(17,24,39,0.10), 0 14px 34px rgba(30,41,59,0.20)',
           }}
         >
-          <Text size="13px" fw={800}>CSS Fundamentals</Text>
-        </Paper>
+          <Text size="13px" fw={900}>CSS</Text>
+        </Box>
+
+        <Text
+          size="14px"
+          fw={850}
+          ta="center"
+          c="grayx.9"
+          style={{
+            position: 'absolute',
+            left: topicNode.x - 90,
+            top: topicNode.y + 38,
+            width: 180,
+            lineHeight: 1.15,
+            textShadow: '0 1px 0 rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.95)',
+          }}
+        >
+          CSS Fundamentals
+        </Text>
 
         {materials.map((item, index) => {
           const Icon = item.icon;
           const pos = visualPositions[index];
           const selected = selectedId === item.id;
+          const iconColor =
+            item.type === 'PDF' ? '#f97316'
+              : item.type === 'Spotify' ? '#1db954'
+                : '#ef4444';
 
           return (
-            <Paper
+            <Box
               key={item.title}
-              radius="md"
-              withBorder
-              p={12}
+              component="button"
+              type="button"
+              aria-label={`${item.title} oeffnen`}
               onClick={() => onSelect(item.id)}
               style={{
                 position: 'absolute',
-                left: pos.x,
-                top: pos.y,
+                left: pos.x - 34,
+                top: pos.y - 34,
                 zIndex: 2,
-                width: materialCard.w,
-                minHeight: materialCard.h,
+                width: 68,
+                height: 68,
+                border: 0,
+                padding: 0,
+                borderRadius: 999,
                 cursor: 'pointer',
-                background: selected ? '#eef6ff' : '#fff',
-                borderColor: selected ? 'var(--mantine-color-brand-6)' : 'var(--mantine-color-grayx-2)',
+                background: '#fff',
+                overflow: 'visible',
+                display: 'grid',
+                placeItems: 'center',
+                color: iconColor,
                 boxShadow: selected
-                  ? '0 0 0 4px rgba(74,144,217,0.12), 0 10px 26px rgba(60,90,140,0.16)'
-                  : '0 5px 20px rgba(60,90,140,0.10)',
+                  ? `0 0 0 7px ${item.type === 'PDF' ? 'rgba(249,115,22,0.16)' : item.type === 'Spotify' ? 'rgba(29,185,84,0.16)' : 'rgba(239,68,68,0.16)'}, 0 14px 34px rgba(30,41,59,0.18)`
+                  : '0 0 0 5px rgba(148,163,184,0.12), 0 10px 28px rgba(30,41,59,0.12)',
+                outline: 'none',
+                transition: 'box-shadow 140ms ease, transform 140ms ease',
+                transform: selected ? 'scale(1.06)' : 'scale(1)',
               }}
             >
-              <Group gap={8} wrap="nowrap">
-                <Box style={{ width: 34, height: 34, borderRadius: 9, background: '#fff', display: 'grid', placeItems: 'center', border: '1px solid var(--mantine-color-grayx-2)' }}>
-                  <Icon size={18} />
-                </Box>
-                <Box style={{ minWidth: 0 }}>
-                  <Badge size="xs" variant="light" color={item.color}>{item.type}</Badge>
-                  <Text size="12px" fw={800} truncate>{item.title}</Text>
-                  <Text size="10px" c="grayx.5" truncate>{item.meta}</Text>
-                </Box>
-              </Group>
-            </Paper>
+              <Icon size={32} stroke={2.1} />
+              <Text
+                size="12px"
+                fw={selected ? 850 : 750}
+                ta="center"
+                c={selected ? 'brand.7' : 'grayx.8'}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: pos.label === 'below' ? 78 : -38,
+                  width: 160,
+                  transform: 'translateX(-50%)',
+                  lineHeight: 1.15,
+                  textShadow: '0 1px 0 rgba(255,255,255,0.95), 0 0 10px rgba(255,255,255,0.95)',
+                  pointerEvents: 'none',
+                }}
+              >
+                {item.title}
+              </Text>
+              <Box
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: pos.label === 'below' ? 112 : -64,
+                  transform: 'translateX(-50%)',
+                  pointerEvents: 'none',
+                  minWidth: item.type === 'PDF' ? 62 : 96,
+                  padding: '5px 12px',
+                  borderRadius: 999,
+                  background: item.type === 'PDF' ? '#fff7ed' : item.type === 'Spotify' ? '#ecfdf5' : '#fef2f2',
+                  border: `1px solid ${item.type === 'PDF' ? 'rgba(249,115,22,0.34)' : item.type === 'Spotify' ? 'rgba(29,185,84,0.34)' : 'rgba(239,68,68,0.34)'}`,
+                  boxShadow: '0 5px 16px rgba(30,41,59,0.12)',
+                }}
+              >
+                <Text
+                  size="11px"
+                  fw={850}
+                  ta="center"
+                  c={item.type === 'PDF' ? 'orange.7' : item.type === 'Spotify' ? 'teal.7' : 'red.7'}
+                  style={{ lineHeight: 1, whiteSpace: 'nowrap' }}
+                >
+                  {item.type}
+                </Text>
+              </Box>
+            </Box>
           );
         })}
 
@@ -265,15 +324,20 @@ export default function NoteDetailView() {
 
   return (
     <Box className="myndPage">
-      <Text size="12px" c="grayx.4" mb={16}>
+      <Text size="12px" c="grayx.4" mb={6}>
         <span style={{ color: 'var(--mantine-color-brand-6)' }}>Skilltree</span>
         <span style={{ opacity: 0.5 }}> {'>'} </span>
         <b style={{ color: 'var(--mantine-color-grayx-9)' }}>CSS Fundamentals</b>
       </Text>
 
-      <Text className="myndPageTitle" size="22px" fw={800} mb={16} c="grayx.9">
-        Hallo User
-      </Text>
+      <Box mb={16}>
+        <Text size="26px" fw={800} c="grayx.9" lh={1.15}>
+          Topic oeffnen
+        </Text>
+        <Text size="13px" c="grayx.5" mt={4}>
+          Hallo User, hier findest du die gespeicherten Materialien und Verknuepfungen zu diesem Thema.
+        </Text>
+      </Box>
 
       <Box className="topicLayout">
         <Paper className="topicMainPanel" withBorder radius="md" p={20} style={{ boxShadow: '0 2px 16px rgba(60,90,140,0.08)' }}>
